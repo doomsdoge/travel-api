@@ -12,11 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.hasMany(models.booking, {
-        foreignKey: {
-          name: 'user_id',
-          type: DataTypes.CHAR(36)
-        },
-        as: 'user_booking'
+        foreignKey: 'user_id'
       })
     }
   }
@@ -25,12 +21,35 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: false,
       primaryKey: true,
-      type: DataTypes.CHAR(36),
+      type: DataTypes.UUID,
       defaultValue: UUIDV4
     },
-    username: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
+    username: {
+      type: DataTypes.STRING,
+      unique: true
+    },
+    email: {
+      type: DataTypes.STRING,
+      validate :{
+        isEmail: {
+          msg: 'Email not valid'
+        }
+      },
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+      
+      /* isAlphanumeric: {
+        args: true,
+        msg: "Password must contain alphabet and numbers only"
+      },
+      len: {
+        args: [6,10],
+        msg: 'Password must between 6-10 character long'
+      } */
+      
+    },
     role: DataTypes.STRING
   }, {
     sequelize,

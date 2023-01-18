@@ -5,7 +5,7 @@ const {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('bookings', {
+    await queryInterface.createTable('bus_routes', {
       id: {
         allowNull: false,
         autoIncrement: false,
@@ -13,28 +13,19 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      travel_name: {
+      from: {
+        type: Sequelize.STRING
+      },
+      to: {
         type: Sequelize.STRING
       },
       total_seat: {
         type: Sequelize.INTEGER
       },
-      seat_number: {
-        type: Sequelize.JSON
-      },
-      total_price: {
-        type: Sequelize.INTEGER
-      },
-      expired_date: {
-        type: Sequelize.DATE
-      },
-      status: {
+      class: {
         type: Sequelize.STRING
       },
-      user_id: {
-        type: Sequelize.INTEGER
-      },
-      bus_id: {
+      price: {
         type: Sequelize.INTEGER
       },
       createdAt: {
@@ -48,6 +39,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('bookings');
+    await queryInterface.dropTable('bus_routes');
   }
 };

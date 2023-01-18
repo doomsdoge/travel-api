@@ -6,51 +6,22 @@ const { hashPassword, hashMatch } = require("../lib/hash");
 const users = db.users;
 const bus = db.bus;
 const booking = db.booking;
+const {createToken} = require('./../lib/jwt')
 
 module.exports = {
   register: async (req, res) => {
-    const t = await sequelize.transaction();
+    /* const t = await sequelize.transaction(); */
     try {
       // get value from body
       let { username, email, password, role } = req.body;
 
-      // check existing username
-      let existUsername = await users.findOne({
-        where: {
-          username,
-        },
-      });
-
-      if (existUsername) {
-        return res.status(404).send({
-          isError: true,
-          message: "username already taken",
-          data: null,
-        });
-      }
-
-      // check existing email
-      let existEmail = await users.findOne({
-        where: {
-          email,
-        },
-      });
-
-      if (existEmail) {
-        return res.status(404).send({
-          isError: true,
-          message: "email already registered",
-          data: null,
-        });
-      }
-
       // check password eligibility. alnum + 6-10 char
       if (
         !password.match(
-          /^(?=.*[a-zA-Z])(?=.*[0-9])/ ||
-            password.length < 6 ||
-            password.length > 10
-        )
+          /^(?=.*[a-zA-Z])(?=.*[0-9])/
+        ) ||
+        password.length < 6 ||
+        password.length > 10
       ) {
         return res.status(404).send({
           isError: true,
@@ -61,15 +32,15 @@ module.exports = {
       }
 
       // insert data to users table
-      let insertUser = await users.create({
+      await users.create({
         username,
         email,
         password: await hashPassword(password),
         role
-      }, {transaction: t})
+      }/* , {transaction: t} */)
 
       // send response
-      await t.commit()
+      /* await t.commit() */
       res.status(201).send({
         isError: false,
         message: 'Register success',
@@ -77,7 +48,60 @@ module.exports = {
       })
 
     } catch (error) {
-      console.log(error);
+      res.status(404).send({
+        isError: true,
+        message: error.message,
+        data: null
+      })
     }
   },
+
+  login: async(req, res) => {
+    try {
+      // get value
+        let {username_email, password} = req.query
+
+        let findUsernameOrEmail = await users.findOne({
+            where: {
+                [Op.or]: [
+                    {username: username_email},
+                    {email: username_email}
+                ]
+            }
+        })
+
+        if(findUsernameOrEmail == null) {
+          return res.status(404).send({
+            isError: true, 
+            message: 'Username or Email not found', 
+            data: true
+          })
+        }
+
+        let hasMatchResult = await hashMatch(password, findUsernameOrEmail.dataValues.password)
+        
+        if(hasMatchResult === false) {
+          return res.status(404).send({
+            isError: true, 
+            message: 'Incorrect password', 
+            data: true
+        })
+        }
+
+        res.status(200).send({
+            isError: false, 
+            message: 'Login success', 
+            data: {
+                token: createToken({id: findUsernameOrEmail.dataValues.id})
+            }
+        })
+        console.log(findUsernameOrEmail.dataValues)
+    } catch (error) {
+        res.status(404).send({
+          isError: true,
+          message: error.message,
+          data: null
+        })
+    }
+}
 };

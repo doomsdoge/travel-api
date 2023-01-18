@@ -9,7 +9,7 @@ app.use(cors())
 const PORT = 5000
 
 // Sequelize Synchronous --adhoc
-const Sequelize = require('sequelize')
+/* const Sequelize = require('sequelize')
 const Models = require('./models')
 Models.sequelize.sync({
     force: false,
@@ -19,7 +19,7 @@ Models.sequelize.sync({
     console.log('Database is Synchronized')
 }).catch(function(err) {
     console.log(err, 'Something went wrong with Database Update!')
-})
+}) */
 
 app.get('/', (req, res) => {
     res.status(200).send('API is running')

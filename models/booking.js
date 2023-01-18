@@ -12,14 +12,18 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.belongsTo(models.users, {
-        foreignKey: {
-          name: 'user_id',
-          type: DataTypes.CHAR(36)
-        }
+        foreignKey: 'user_id'
       })
       
       this.belongsTo(models.bus, {
         foreignKey: 'bus_id'
+      })
+
+      this.hasMany(models.booking_detail, {
+        foreignKey: {
+          name: 'booking_id',
+          type: DataTypes.CHAR(36)
+        }
       })
     }
   }
@@ -31,9 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: UUIDV4
     },
-    travel_name: DataTypes.STRING,
-    total_seat: DataTypes.INTEGER,
-    seat_number: DataTypes.JSON,
+    bus_name: DataTypes.STRING,
+    from: DataTypes.STRING,
+    to: DataTypes.STRING,
+    departure: DataTypes.DATEONLY,
     total_price: DataTypes.INTEGER,
     expired_date: DataTypes.DATE,
     status: DataTypes.STRING,
